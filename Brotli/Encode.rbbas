@@ -1,0 +1,62 @@
+#tag Module
+Private Module Encode
+	#tag ExternalMethod, Flags = &h1
+		Protected Soft Declare Function BrotliEncoderCompress Lib "libbrotlienc" (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Boolean
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderVersion Lib "libbrotlienc" () As UInt32
+	#tag EndExternalMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Version() As UInt32
+		  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
+		End Function
+	#tag EndMethod
+
+
+	#tag Enum, Name = EncoderMode, Type = Integer, Flags = &h1
+		Generic
+		  Text
+		  Font
+		Default=EncoderMode.Generic
+	#tag EndEnum
+
+
+	#tag ViewBehavior
+		#tag ViewProperty
+			Name="Index"
+			Visible=true
+			Group="ID"
+			InitialValue="-2147483648"
+			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Left"
+			Visible=true
+			Group="Position"
+			InitialValue="0"
+			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Name"
+			Visible=true
+			Group="ID"
+			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Super"
+			Visible=true
+			Group="ID"
+			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Top"
+			Visible=true
+			Group="Position"
+			InitialValue="0"
+			InheritedFrom="Object"
+		#tag EndViewProperty
+	#tag EndViewBehavior
+End Module
+#tag EndModule
