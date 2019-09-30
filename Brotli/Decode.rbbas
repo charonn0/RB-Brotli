@@ -9,7 +9,7 @@ Private Module Decode
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h1
-		Protected Soft Declare Function BrotliDecoderDecompressStream Lib "libbrotlidec" (State As Ptr, ByRef AvailIn As UInt32, NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As DecodeResult
+		Protected Soft Declare Function BrotliDecoderDecompressStream Lib "libbrotlidec" (State As Ptr, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As DecodeResult
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h1
@@ -22,6 +22,10 @@ Private Module Decode
 
 	#tag ExternalMethod, Flags = &h1
 		Protected Soft Declare Function BrotliDecoderGetErrorCode Lib "libbrotlidec" (State As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h1
+		Protected Soft Declare Function BrotliDecoderHasMoreOutput Lib "libbrotlidec" (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h1

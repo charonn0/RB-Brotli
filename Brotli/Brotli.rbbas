@@ -44,11 +44,22 @@ Protected Module Brotli
 	#tag Constant, Name = BROTLI_DEFAULT_WINDOW, Type = Double, Dynamic = False, Default = \"22", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"16384", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = libbrotlidec, Type = String, Dynamic = False, Default = \"libbrotlidec", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = libbrotlienc, Type = String, Dynamic = False, Default = \"libbrotlienc", Scope = Private
 	#tag EndConstant
+
+
+	#tag Enum, Name = Operation, Flags = &h1
+		Process
+		  Flush
+		  Finish
+		EmitMetaData
+	#tag EndEnum
 
 
 	#tag ViewBehavior
