@@ -1,63 +1,63 @@
 #tag Module
 Protected Module Brotli
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderCreateInstance Lib "libbrotlidec" (AllocFunction As Ptr, FreeFunction As Ptr, Opaque As Ptr) As Ptr
+		Private Soft Declare Function BrotliDecoderCreateInstance Lib libbrotlidec (AllocFunction As Ptr, FreeFunction As Ptr, Opaque As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderDecompress Lib "libbrotlidec" (EncodedSize As UInt32, EncodedBuffer As Ptr, ByRef DecodedSize As UInt32, DecodedBuffer As Ptr) As DecodeResult
+		Private Soft Declare Function BrotliDecoderDecompress Lib libbrotlidec (EncodedSize As UInt32, EncodedBuffer As Ptr, ByRef DecodedSize As UInt32, DecodedBuffer As Ptr) As DecodeResult
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderDecompressStream Lib "libbrotlidec" (State As Ptr, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As DecodeResult
+		Private Soft Declare Function BrotliDecoderDecompressStream Lib libbrotlidec (State As Ptr, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As DecodeResult
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Sub BrotliDecoderDestroyInstance Lib "libbrotlidec" (State As Ptr)
+		Private Soft Declare Sub BrotliDecoderDestroyInstance Lib libbrotlidec (State As Ptr)
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderErrorString Lib "libbrotlidec" (ErrorCode As Integer) As Ptr
+		Private Soft Declare Function BrotliDecoderErrorString Lib libbrotlidec (ErrorCode As Integer) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderGetErrorCode Lib "libbrotlidec" (State As Ptr) As Integer
+		Private Soft Declare Function BrotliDecoderGetErrorCode Lib libbrotlidec (State As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib "libbrotlidec" (State As Ptr) As UInt32
+		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib libbrotlidec (State As Ptr) As UInt32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderVersion Lib "libbrotlidec" () As UInt32
+		Private Soft Declare Function BrotliDecoderVersion Lib libbrotlidec () As UInt32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompress Lib "libbrotlienc" (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Boolean
+		Private Soft Declare Function BrotliEncoderCompress Lib libbrotlienc (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompressStream Lib "libbrotlienc" (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Boolean
+		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCreateInstance Lib "libbrotlienc" (AllocFunction As Ptr, FreeFunction As Ptr, Opaque As Ptr) As Ptr
+		Private Soft Declare Function BrotliEncoderCreateInstance Lib libbrotlienc (AllocFunction As Ptr, FreeFunction As Ptr, Opaque As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Sub BrotliEncoderDestroyInstance Lib "libbrotlienc" (State As Ptr)
+		Private Soft Declare Sub BrotliEncoderDestroyInstance Lib libbrotlienc (State As Ptr)
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderGetErrorCode Lib "libbrotlienc" (State As Ptr) As Integer
+		Private Soft Declare Function BrotliEncoderGetErrorCode Lib libbrotlienc (State As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib "libbrotlienc" (State As Ptr) As UInt32
+		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib libbrotlienc (State As Ptr) As UInt32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderVersion Lib "libbrotlienc" () As UInt32
+		Private Soft Declare Function BrotliEncoderVersion Lib libbrotlienc () As UInt32
 	#tag EndExternalMethod
 
 	#tag Method, Flags = &h1
