@@ -15,7 +15,7 @@ Protected Class Encoder
 		  'lastopaque = lastopaque + 1
 		  'Loop Until Not Instances.HasKey(lastopaque)
 		  
-		  mState = Brotli.Encode.BrotliEncoderCreateInstance(Nil, Nil, Nil)
+		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
 		  'Brotli.Encode.BrotliEncoderCreateInstance(AddressOf AllocFunction, AddressOf FreeFunction, Ptr(lastopaque))
 		  If mState = Nil Then Raise New BrotliException
 		  'Instances.Value(lastopaque) = New WeakRef(Me)
@@ -24,7 +24,7 @@ Protected Class Encoder
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mState <> Nil Then Brotli.Encode.BrotliEncoderDestroyInstance(mState)
+		  If mState <> Nil Then BrotliEncoderDestroyInstance(mState)
 		  mState = Nil
 		End Sub
 	#tag EndMethod
@@ -40,7 +40,7 @@ Protected Class Encoder
 		    Dim nextin As Ptr = chunk
 		    Dim nextout As Ptr = out
 		    Dim availout As UInt32 = out.Size
-		    If Not Brotli.Encode.BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut) Then Return False
+		    If Not BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut) Then Return False
 		    WriteTo.Write(out.StringValue(0, out.Size - availout))
 		  Loop Until ReadFrom = Nil Or ReadFrom.EOF
 		  
@@ -58,6 +58,15 @@ Protected Class Encoder
 	#tag Property, Flags = &h21
 		Private Shared Instances As Dictionary
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState) = 1
+			End Get
+		#tag EndGetter
+		MoreOutputAvailable As Boolean
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mState As Ptr

@@ -15,7 +15,7 @@ Protected Class Decoder
 		  'lastopaque = lastopaque + 1
 		  'Loop Until Not Instances.HasKey(lastopaque)
 		  
-		  mState = Brotli.Decode.BrotliDecoderCreateInstance(Nil, Nil, Nil)
+		  mState = BrotliDecoderCreateInstance(Nil, Nil, Nil)
 		  'Brotli.Decode.BrotliDecoderCreateInstance(AddressOf AllocFunction, AddressOf FreeFunction, Ptr(lastopaque))
 		  If mState = Nil Then Raise New BrotliException
 		  'Instances.Value(lastopaque) = New WeakRef(Me)
@@ -32,18 +32,18 @@ Protected Class Decoder
 		    Dim nextin As Ptr = chunk
 		    Dim nextout As Ptr = out
 		    Dim availout As UInt32 = out.Size
-		    Dim result As Brotli.Decode.DecodeResult = Brotli.Decode.BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
-		    If result = Brotli.Decode.DecodeResult.Error Then Return False
+		    Dim result As DecodeResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
+		    If result = DecodeResult.Error Then Return False
 		    WriteTo.Write(out.StringValue(0, out.Size - availout))
-		    If result = Brotli.Decode.DecodeResult.Success Then Exit Do
-		  Loop Until ReadFrom.EOF And Not Brotli.Decode.BrotliDecoderHasMoreOutput(mState)
+		    If result = DecodeResult.Success Then Exit Do
+		  Loop Until ReadFrom.EOF And Not MoreOutputAvailable
 		  Return True
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mState <> Nil Then Brotli.Decode.BrotliDecoderDestroyInstance(mState)
+		  If mState <> Nil Then BrotliDecoderDestroyInstance(mState)
 		  mState = Nil
 		End Sub
 	#tag EndMethod
@@ -56,7 +56,7 @@ Protected Class Decoder
 
 	#tag Method, Flags = &h0
 		Function LastError() As Integer
-		  If mState <> Nil Then Return Brotli.Decode.BrotliDecoderGetErrorCode(mState)
+		  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
 		End Function
 	#tag EndMethod
 
@@ -64,6 +64,15 @@ Protected Class Decoder
 	#tag Property, Flags = &h21
 		Private Shared Instances As Dictionary
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState) = 1
+			End Get
+		#tag EndGetter
+		MoreOutputAvailable As Boolean
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mState As Ptr
