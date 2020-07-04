@@ -20,7 +20,7 @@ Protected Class Encoder
 		  If mState = Nil Then Return False
 		  
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
-		  Dim err, count As Int32
+		  Dim count As Int32
 		  Dim availin, availout As UInt32
 		  Dim nextin, nextout As Ptr
 		  
@@ -38,17 +38,17 @@ Protected Class Encoder
 		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
 		      nextout = outbuff
 		      availout = outbuff.Size
-		      err = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
+		      mLastError = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
 		      Dim have As UInt32 = CHUNK_SIZE - availout
 		      If have > 0 Then
 		        If have <> outbuff.Size Then outbuff.Size = have
 		        WriteTo.Write(outbuff)
 		      End If
-		    Loop Until err <> 1 Or availout <> 0
+		    Loop Until mLastError <> 1 Or availout <> 0
 		    
 		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF
 		  
-		  Return availin = 0 And err = 1
+		  Return availin = 0 And mLastError = 1
 		End Function
 	#tag EndMethod
 
@@ -67,6 +67,19 @@ Protected Class Encoder
 		#tag EndGetter
 		IsFinished As Boolean
 	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Integer
+	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mLastError As Integer
+	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
