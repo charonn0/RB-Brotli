@@ -4,7 +4,7 @@ Protected Class Decoder
 		Sub Constructor()
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  mState = BrotliDecoderCreateInstance(Nil, Nil, Nil)
-		  If mState = Nil Then Raise New BrotliException
+		  If mState = Nil Then Raise New BrotliException(Me)
 		  
 		End Sub
 	#tag EndMethod

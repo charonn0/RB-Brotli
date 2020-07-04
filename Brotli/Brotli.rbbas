@@ -57,10 +57,6 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderErrorString Lib libbrotlienc (ErrorCode As Integer) As Ptr
-	#tag EndExternalMethod
-
-	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliEncoderGetErrorCode Lib libbrotlienc (State As Ptr) As Integer
 	#tag EndExternalMethod
 
@@ -108,31 +104,6 @@ Protected Module Brotli
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
-		Protected Function FormatDecoderError(ErrorCode As Integer) As String
-		  If Not Brotli.IsAvailable Then Return "Brotli is not available"
-		  Dim mb As MemoryBlock = BrotliDecoderErrorString(ErrorCode)
-		  If mb <> Nil Then Return mb.CString(0)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function FormatEncoderError(ErrorCode As Integer) As String
-		  If Not Brotli.IsAvailable Then Return "Brotli is not available"
-		  Dim mb As MemoryBlock = BrotliEncoderErrorString(ErrorCode)
-		  If mb <> Nil Then Return mb.CString(0)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function IsAvailable() As Boolean
-		  ' Returns True if Brotli is available.
-		  
-		  Static available As Boolean = System.IsFunctionAvailable("BrotliDecoderCreateInstance", libbrotlidec)
-		  Return available
-		End Function
-	#tag EndMethod
-
 
 	#tag ComputedProperty, Flags = &h1
 		#tag Getter
@@ -152,11 +123,53 @@ Protected Module Brotli
 		Protected EncoderVersion As UInt32
 	#tag EndComputedProperty
 
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  ' Returns True if Brotli is available.
+			  
+			  Static available As Boolean = IsDecoderAvailable Or IsEncoderAvailable
+			  Return available
+			End Get
+		#tag EndGetter
+		Protected IsAvailable As Boolean
+	#tag EndComputedProperty
 
-	#tag Constant, Name = BROTLI_DEFAULT_QUALITY, Type = Double, Dynamic = False, Default = \"11", Scope = Protected
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  ' Returns True if decompression is available.
+			  
+			  Static available As Boolean = System.IsFunctionAvailable("BrotliDecoderCreateInstance", libbrotlidec)
+			  Return available
+			End Get
+		#tag EndGetter
+		Protected IsDecoderAvailable As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  ' Returns True if compression is available.
+			  
+			  Static available As Boolean = System.IsFunctionAvailable("BrotliEncoderCreateInstance", libbrotlienc)
+			  Return available
+			End Get
+		#tag EndGetter
+		Protected IsEncoderAvailable As Boolean
+	#tag EndComputedProperty
+
+
+	#tag Constant, Name = BROTLI_DEFAULT_QUALITY, Type = Double, Dynamic = False, Default = \"BROTLI_MAX_QUALITY", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = BROTLI_DEFAULT_WINDOW, Type = Double, Dynamic = False, Default = \"22", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = BROTLI_MAX_QUALITY, Type = Double, Dynamic = False, Default = \"11", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = BROTLI_MIN_QUALITY, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"16384", Scope = Private
@@ -168,6 +181,10 @@ Protected Module Brotli
 	#tag Constant, Name = libbrotlienc, Type = String, Dynamic = False, Default = \"libbrotlienc", Scope = Private
 	#tag EndConstant
 
+
+	#tag Enum, Name = DecodeParameter, Type = Integer, Flags = &h1
+		DisableRingBufferRealloc
+	#tag EndEnum
 
 	#tag Enum, Name = DecodeResult, Flags = &h1
 		Error

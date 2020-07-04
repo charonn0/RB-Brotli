@@ -4,7 +4,7 @@ Protected Class Encoder
 		Sub Constructor()
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
-		  If mState = Nil Then Raise New BrotliException
+		  If mState = Nil Then Raise New BrotliException(Me)
 		End Sub
 	#tag EndMethod
 
