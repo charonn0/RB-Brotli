@@ -4,6 +4,7 @@ MinIDEVersion=20070100
 Class=App;App.rbbas;&h45A4BFFF;&h0;false
 BuildSteps=Build Automation;Build Automation.rbbas;&h4174CFFF;&h0;false
 Module=Brotli;Brotli/Brotli.rbbas;&h715647FF;&h0;false
+Class=BrotliStream;Brotli/BrotliStream.rbbas;&h1C4BAFFF;&h715647FF;false
 Class=BrotliException;Brotli/BrotliException.rbbas;&h49553FFF;&h715647FF;false
 Class=Decoder;Brotli/Decoder.rbbas;&h68B0BFFF;&h715647FF;false
 Class=Encoder;Brotli/Encoder.rbbas;&hC73FFF;&h715647FF;false
