@@ -46,7 +46,7 @@ Protected Class Decoder
 		      End If
 		    Loop Until mLastResult <> DecodeResult.MoreOutputNeeded
 		    
-		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF Or result <> DecodeResult.MoreInputNeeded
+		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF Or mLastResult <> DecodeResult.MoreInputNeeded
 		  
 		  Return mLastResult = DecodeResult.Success Or mLastResult = DecodeResult.MoreInputNeeded
 		  
