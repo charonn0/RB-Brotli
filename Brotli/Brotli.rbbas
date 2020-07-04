@@ -29,6 +29,14 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderIsUsed Lib libbrotlidec (State As Ptr) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderSetParameter Lib libbrotlidec (State As Ptr, Param As DecodeParameter, Value As UInt32) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliDecoderVersion Lib libbrotlidec () As UInt32
 	#tag EndExternalMethod
 

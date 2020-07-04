@@ -53,6 +53,22 @@ Protected Class Decoder
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function SetParam(Param As Brotli.DecodeParameter, Value As UInt32) As Boolean
+		  If mState = Nil Then Return False
+		  Return BrotliDecoderSetParameter(mState, Param, Value) = 1
+		End Function
+	#tag EndMethod
+
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mState <> Nil Then Return BrotliDecoderIsUsed(mState) = 1
+			End Get
+		#tag EndGetter
+		IsUsed As Boolean
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
