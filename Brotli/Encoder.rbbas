@@ -1,10 +1,11 @@
 #tag Class
 Protected Class Encoder
 	#tag Method, Flags = &h0
-		Sub Constructor()
+		Sub Constructor(Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY)
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
 		  If mState = Nil Then Raise New BrotliException(Me)
+		  If Quality <> BROTLI_DEFAULT_QUALITY Then Me.Quality = Quality
 		End Sub
 	#tag EndMethod
 
@@ -91,12 +92,30 @@ Protected Class Encoder
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
+		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mState As Ptr
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mTotalOut As UInt32
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mQuality
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If SetOption(EncoderOption.Quality, value) Then mQuality = value
+			End Set
+		#tag EndSetter
+		Quality As Int32
+	#tag EndComputedProperty
 
 
 	#tag ViewBehavior
