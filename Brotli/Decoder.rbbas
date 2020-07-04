@@ -37,18 +37,18 @@ Protected Class Decoder
 		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
 		      nextout = outbuff
 		      availout = outbuff.Size
-		      result = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
-		      If result = DecodeResult.Error Then Return False
 		      Dim have As UInt32 = CHUNK_SIZE - availout
+		      mLastResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
+		      If mLastResult = DecodeResult.Error Then Return False
 		      If have > 0 Then
 		        If have <> outbuff.Size Then outbuff.Size = have
 		        WriteTo.Write(outbuff)
 		      End If
-		    Loop Until result <> DecodeResult.MoreOutputNeeded
+		    Loop Until mLastResult <> DecodeResult.MoreOutputNeeded
 		    
 		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF Or result <> DecodeResult.MoreInputNeeded
 		  
-		  Return result = DecodeResult.Success
+		  Return mLastResult = DecodeResult.Success Or mLastResult = DecodeResult.MoreInputNeeded
 		  
 		End Function
 	#tag EndMethod
@@ -78,6 +78,19 @@ Protected Class Decoder
 		#tag EndGetter
 		LastError As Integer
 	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mLastResult
+			End Get
+		#tag EndGetter
+		LastResult As Brotli.DecodeResult
+	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mLastResult As Brotli.DecodeResult
+	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
