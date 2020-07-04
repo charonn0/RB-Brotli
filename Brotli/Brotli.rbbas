@@ -25,7 +25,7 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib libbrotlidec (State As Ptr) As UInt32
+		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib libbrotlidec (State As Ptr) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -33,11 +33,11 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompress Lib libbrotlienc (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Boolean
+		Private Soft Declare Function BrotliEncoderCompress Lib libbrotlienc (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Boolean
+		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -49,11 +49,23 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderErrorString Lib libbrotlienc (ErrorCode As Integer) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliEncoderGetErrorCode Lib libbrotlienc (State As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib libbrotlienc (State As Ptr) As UInt32
+		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib libbrotlienc (State As Ptr) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderIsFinished Lib libbrotlienc (State As Ptr) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderSetParameter Lib libbrotlienc (State As Ptr, Option As EncoderOption, Value As UInt32) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -75,17 +87,11 @@ Protected Module Brotli
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function DecoderVersion() As UInt32
-		  If Brotli.IsAvailable Then Return BrotliDecoderVersion()
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
 		Protected Function Encode(Buffer As MemoryBlock, Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY, Mode As Brotli.EncoderMode = Brotli.EncoderMode.Default) As MemoryBlock
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  Dim output As New MemoryBlock(Buffer.Size)
 		  Dim outsz As UInt64 = output.Size
-		  Do Until BrotliEncoderCompress(Quality, BROTLI_DEFAULT_WINDOW, Mode, Buffer.Size, Buffer, outsz, output)
+		  Do Until BrotliEncoderCompress(Quality, BROTLI_DEFAULT_WINDOW, Mode, Buffer.Size, Buffer, outsz, output) = 1
 		    If output.Size > Buffer.Size * 15 Then Return Nil
 		    output.Size = output.Size * 1.5
 		  Loop
@@ -95,15 +101,17 @@ Protected Module Brotli
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function EncoderVersion() As UInt32
-		  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
+		Protected Function FormatDecoderError(ErrorCode As Integer) As String
+		  If Not Brotli.IsAvailable Then Return "Brotli is not available"
+		  Dim mb As MemoryBlock = BrotliDecoderErrorString(ErrorCode)
+		  If mb <> Nil Then Return mb.CString(0)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function FormatDecoderError(ErrorCode As Integer) As String
+		Protected Function FormatEncoderError(ErrorCode As Integer) As String
 		  If Not Brotli.IsAvailable Then Return "Brotli is not available"
-		  Dim mb As MemoryBlock = BrotliDecoderErrorString(ErrorCode)
+		  Dim mb As MemoryBlock = BrotliEncoderErrorString(ErrorCode)
 		  If mb <> Nil Then Return mb.CString(0)
 		End Function
 	#tag EndMethod
@@ -116,6 +124,25 @@ Protected Module Brotli
 		  Return available
 		End Function
 	#tag EndMethod
+
+
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  If Brotli.IsAvailable Then Return BrotliDecoderVersion()
+			End Get
+		#tag EndGetter
+		Protected DecoderVersion As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
+			End Get
+		#tag EndGetter
+		Protected EncoderVersion As UInt32
+	#tag EndComputedProperty
 
 
 	#tag Constant, Name = BROTLI_DEFAULT_QUALITY, Type = Double, Dynamic = False, Default = \"11", Scope = Protected
@@ -146,6 +173,15 @@ Protected Module Brotli
 		  Text
 		  Font
 		Default=EncoderMode.Generic
+	#tag EndEnum
+
+	#tag Enum, Name = EncoderOption, Type = Integer, Flags = &h1
+		Mode=0
+		  Quality
+		  LGWIN
+		  LGBLOCK
+		  DisableLiteralContextModeling
+		SizeHint
 	#tag EndEnum
 
 	#tag Enum, Name = Operation, Flags = &h1

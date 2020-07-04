@@ -1,24 +1,10 @@
 #tag Class
 Protected Class Encoder
-	#tag Method, Flags = &h21
-		Private Shared Function AllocFunction(Opaque As Ptr, Size As UInt32) As Ptr
-		  
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Sub Constructor()
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
-		  'If Instances = Nil Then Instances = New Dictionary
-		  'Static lastopaque As Integer
-		  'Do
-		  'lastopaque = lastopaque + 1
-		  'Loop Until Not Instances.HasKey(lastopaque)
-		  
 		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
-		  'Brotli.Encode.BrotliEncoderCreateInstance(AddressOf AllocFunction, AddressOf FreeFunction, Ptr(lastopaque))
 		  If mState = Nil Then Raise New BrotliException
-		  'Instances.Value(lastopaque) = New WeakRef(Me)
 		End Sub
 	#tag EndMethod
 
@@ -30,34 +16,57 @@ Protected Class Encoder
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Encode(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation) As Boolean
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = - 1) As Boolean
 		  If mState = Nil Then Return False
+		  
+		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
+		  Dim err, count As Int32
+		  Dim availin, availout As UInt32
+		  Dim nextin, nextout As Ptr
+		  
 		  Do
 		    Dim chunk As MemoryBlock
-		    If ReadFrom = Nil Then chunk = "" Else chunk = ReadFrom.Read(CHUNK_SIZE)
-		    Dim out As New MemoryBlock(CHUNK_SIZE)
-		    Dim availin As UInt32 = chunk.Size
-		    Dim nextin As Ptr = chunk
-		    Dim nextout As Ptr = out
-		    Dim availout As UInt32 = out.Size
-		    If Not BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut) Then Return False
-		    WriteTo.Write(out.StringValue(0, out.Size - availout))
-		  Loop Until ReadFrom = Nil Or ReadFrom.EOF
+		    Dim sz As Integer
+		    If ReadCount > -1 Then sz = Min(ReadCount - count, CHUNK_SIZE) Else sz = CHUNK_SIZE
+		    If ReadFrom <> Nil And sz > 0 Then chunk = ReadFrom.Read(sz) Else chunk = ""
+		    
+		    availin = chunk.Size
+		    nextin = chunk
+		    count = count + chunk.Size
+		    
+		    Do
+		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
+		      nextout = outbuff
+		      availout = outbuff.Size
+		      err = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
+		      Dim have As UInt32 = CHUNK_SIZE - availout
+		      If have > 0 Then
+		        If have <> outbuff.Size Then outbuff.Size = have
+		        WriteTo.Write(outbuff)
+		      End If
+		    Loop Until err <> 1 Or availout <> 0
+		    
+		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF
 		  
-		  Return True
+		  Return availin = 0 And err = 1
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h21
-		Private Shared Sub FreeFunction(Opaque As Ptr, Address As Ptr)
-		  
-		End Sub
+	#tag Method, Flags = &h0
+		Function SetOption(Option As Brotli.EncoderOption, Value As UInt32) As Boolean
+		  Return BrotliEncoderSetParameter(mState, Option, Value) = 1
+		End Function
 	#tag EndMethod
 
 
-	#tag Property, Flags = &h21
-		Private Shared Instances As Dictionary
-	#tag EndProperty
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mState <> Nil Then Return BrotliEncoderIsFinished(mState) = 1
+			End Get
+		#tag EndGetter
+		IsFinished As Boolean
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -86,11 +95,21 @@ Protected Class Encoder
 			InheritedFrom="Object"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="IsFinished"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
 			InitialValue="0"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="MoreOutputAvailable"
+			Group="Behavior"
+			Type="Boolean"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Name"

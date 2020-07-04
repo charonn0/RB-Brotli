@@ -1,44 +1,12 @@
 #tag Class
 Protected Class Decoder
-	#tag Method, Flags = &h21
-		Private Shared Function AllocFunction(Opaque As Ptr, Size As UInt32) As Ptr
-		  
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Sub Constructor()
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
-		  'If Instances = Nil Then Instances = New Dictionary
-		  'Static lastopaque As Integer
-		  'Do
-		  'lastopaque = lastopaque + 1
-		  'Loop Until Not Instances.HasKey(lastopaque)
-		  
 		  mState = BrotliDecoderCreateInstance(Nil, Nil, Nil)
-		  'Brotli.Decode.BrotliDecoderCreateInstance(AddressOf AllocFunction, AddressOf FreeFunction, Ptr(lastopaque))
 		  If mState = Nil Then Raise New BrotliException
-		  'Instances.Value(lastopaque) = New WeakRef(Me)
+		  
 		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function Decode(ReadFrom As Readable, WriteTo As Writeable) As Boolean
-		  If mState = Nil Then Return False
-		  Do
-		    Dim chunk As MemoryBlock = ReadFrom.Read(CHUNK_SIZE)
-		    Dim out As New MemoryBlock(CHUNK_SIZE)
-		    Dim availin As UInt32 = chunk.Size
-		    Dim nextin As Ptr = chunk
-		    Dim nextout As Ptr = out
-		    Dim availout As UInt32 = out.Size
-		    Dim result As DecodeResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
-		    If result = DecodeResult.Error Then Return False
-		    WriteTo.Write(out.StringValue(0, out.Size - availout))
-		    If result = DecodeResult.Success Then Exit Do
-		  Loop Until ReadFrom.EOF And Not MoreOutputAvailable
-		  Return True
-		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
@@ -48,22 +16,52 @@ Protected Class Decoder
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h21
-		Private Shared Sub FreeFunction(Opaque As Ptr, Address As Ptr)
-		  
-		End Sub
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
-		Function LastError() As Integer
-		  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = -1) As Boolean
+		  If mState = Nil Then Return False
+		  Dim availin, availout As UInt32
+		  Dim nextin, nextout As Ptr
+		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
+		  Dim count As Integer
+		  Dim result As DecodeResult
+		  
+		  Do
+		    Dim chunk As MemoryBlock
+		    Dim sz As Integer
+		    If ReadCount > -1 Then sz = Min(ReadCount - count, CHUNK_SIZE) Else sz = CHUNK_SIZE
+		    If ReadFrom <> Nil And sz > 0 Then chunk = ReadFrom.Read(sz) Else chunk = ""
+		    availin = chunk.Size
+		    nextin = chunk
+		    count = count + chunk.Size
+		    Do
+		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
+		      nextout = outbuff
+		      availout = outbuff.Size
+		      result = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
+		      If result = DecodeResult.Error Then Return False
+		      Dim have As UInt32 = CHUNK_SIZE - availout
+		      If have > 0 Then
+		        If have <> outbuff.Size Then outbuff.Size = have
+		        WriteTo.Write(outbuff)
+		      End If
+		    Loop Until result <> DecodeResult.MoreOutputNeeded
+		    
+		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF Or result <> DecodeResult.MoreInputNeeded
+		  
+		  Return result = DecodeResult.Success
+		  
 		End Function
 	#tag EndMethod
 
 
-	#tag Property, Flags = &h21
-		Private Shared Instances As Dictionary
-	#tag EndProperty
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
+			End Get
+		#tag EndGetter
+		LastError As Integer
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -97,6 +95,11 @@ Protected Class Decoder
 			Group="Position"
 			InitialValue="0"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="MoreOutputAvailable"
+			Group="Behavior"
+			Type="Boolean"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Name"
