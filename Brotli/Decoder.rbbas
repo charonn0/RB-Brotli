@@ -23,7 +23,6 @@ Protected Class Decoder
 		  Dim nextin, nextout As Ptr
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
 		  Dim count As Integer
-		  Dim result As DecodeResult
 		  
 		  Do
 		    Dim chunk As MemoryBlock
