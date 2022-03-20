@@ -36,8 +36,8 @@ Protected Class Decoder
 		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
 		      nextout = outbuff
 		      availout = outbuff.Size
+		        mLastResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
 		      Dim have As UInt32 = CHUNK_SIZE - availout
-		      mLastResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
 		      If mLastResult = DecodeResult.Error Then Return False
 		      If have > 0 Then
 		        If have <> outbuff.Size Then outbuff.Size = have
