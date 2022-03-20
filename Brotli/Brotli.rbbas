@@ -9,7 +9,15 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderDecompress64 Lib libbrotlidec Alias "BrotliDecoderDecompress" (EncodedSize As UInt64, EncodedBuffer As Ptr, ByRef DecodedSize As UInt64, DecodedBuffer As Ptr) As DecodeResult
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliDecoderDecompressStream Lib libbrotlidec (State As Ptr, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As DecodeResult
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderDecompressStream64 Lib libbrotlidec Alias "BrotliDecoderDecompressStream" (State As Ptr, ByRef AvailIn As UInt64, ByRef NextIn As Ptr, ByRef AvailOut As UInt64, ByRef NextOut As Ptr, ByRef TotalOut As UInt64) As DecodeResult
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -25,15 +33,19 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib libbrotlidec (State As Ptr) As Int32
+		Private Soft Declare Function BrotliDecoderHasMoreOutput Lib libbrotlidec (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderIsUsed Lib libbrotlidec (State As Ptr) As Int32
+		Private Soft Declare Function BrotliDecoderIsUsed Lib libbrotlidec (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderSetParameter Lib libbrotlidec (State As Ptr, Param As DecodeParameter, Value As UInt32) As Int32
+		Private Soft Declare Function BrotliDecoderSetParameter Lib libbrotlidec (State As Ptr, Param As DecodeParameter, Value As UInt32) As Boolean
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderSetParameter64 Lib libbrotlidec Alias "BrotliDecoderSetParameter" (State As Ptr, Param As DecodeParameter, Value As UInt64) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -41,11 +53,19 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompress Lib libbrotlienc (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Int32
+		Private Soft Declare Function BrotliEncoderCompress Lib libbrotlienc (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt32, InputBuffer As Ptr, ByRef EncodedSize As UInt32, EncodedBuffer As Ptr) As Boolean
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderCompress64 Lib libbrotlienc Alias "BrotliEncoderCompress" (Quality As Int32, lgWin As Int32, Mode As EncoderMode, InputSize As UInt64, InputBuffer As Ptr, ByRef EncodedSize As UInt64, EncodedBuffer As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderCompressStream64 Lib libbrotlienc Alias "BrotliEncoderCompressStream" (State As Ptr, Operation As Operation, ByRef AvailIn As UInt64, ByRef NextIn As Ptr, ByRef AvailOut As UInt64, ByRef NextOut As Ptr, ByRef TotalOut As UInt64) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -61,15 +81,15 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib libbrotlienc (State As Ptr) As Int32
+		Private Soft Declare Function BrotliEncoderHasMoreOutput Lib libbrotlienc (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderIsFinished Lib libbrotlienc (State As Ptr) As Int32
+		Private Soft Declare Function BrotliEncoderIsFinished Lib libbrotlienc (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderSetParameter Lib libbrotlienc (State As Ptr, Option As EncoderOption, Value As UInt32) As Int32
+		Private Soft Declare Function BrotliEncoderSetParameter Lib libbrotlienc (State As Ptr, Option As EncoderOption, Value As UInt32) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -80,10 +100,15 @@ Protected Module Brotli
 		Protected Function Decode(Buffer As MemoryBlock) As MemoryBlock
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  Dim output As New MemoryBlock(Buffer.Size * 3)
-		  Dim outsz As UInt32 = output.Size
-		  Do Until BrotliDecoderDecompress(Buffer.Size, Buffer, outsz, output) = DecodeResult.Success
-		    If output.Size > Buffer.Size * 15 Then Return Nil
-		    output.Size = output.Size * 1.5
+		  #If Target32Bit Then
+		    Dim outsz As UInt32 = output.Size
+		    Do Until BrotliDecoderDecompress(Buffer.Size, Buffer, outsz, output) = DecodeResult.Success
+		  #Else
+		    Dim outsz As UInt64 = output.Size
+		    Do Until BrotliDecoderDecompress64(Buffer.Size, Buffer, outsz, output) = DecodeResult.Success
+		  #EndIf
+		  If output.Size > Buffer.Size * 15 Then Return Nil
+		  output.Size = output.Size * 1.5
 		  Loop
 		  output.Size = outsz
 		  Return output
@@ -94,10 +119,15 @@ Protected Module Brotli
 		Protected Function Encode(Buffer As MemoryBlock, Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY, Mode As Brotli.EncoderMode = Brotli.EncoderMode.Default) As MemoryBlock
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  Dim output As New MemoryBlock(Buffer.Size)
-		  Dim outsz As UInt64 = output.Size
-		  Do Until BrotliEncoderCompress(Quality, BROTLI_DEFAULT_WINDOW, Mode, Buffer.Size, Buffer, outsz, output) = 1
-		    If output.Size > Buffer.Size * 15 Then Return Nil
-		    output.Size = output.Size * 1.5
+		  #If Target32Bit Then
+		    Dim outsz As UInt32 = output.Size
+		    Do Until BrotliEncoderCompress(Quality, BROTLI_DEFAULT_WINDOW, Mode, Buffer.Size, Buffer, outsz, output)
+		  #Else
+		    Dim outsz As UInt64 = output.Size
+		    Do Until BrotliEncoderCompress64(Quality, BROTLI_DEFAULT_WINDOW, Mode, Buffer.Size, Buffer, outsz, output)
+		  #EndIf
+		  If output.Size > Buffer.Size * 15 Then Return Nil
+		  output.Size = output.Size * 1.5
 		  Loop
 		  output.Size = outsz
 		  Return output
@@ -172,7 +202,7 @@ Protected Module Brotli
 	#tag Constant, Name = BROTLI_MIN_QUALITY, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"16384", Scope = Private
+	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"524288", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = libbrotlidec, Type = String, Dynamic = False, Default = \"libbrotlidec", Scope = Private
@@ -223,33 +253,40 @@ Protected Module Brotli
 			Visible=true
 			Group="ID"
 			InitialValue="-2147483648"
-			InheritedFrom="Object"
+			Type="Integer"
+			EditorType=""
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
 			InitialValue="0"
-			InheritedFrom="Object"
+			Type="Integer"
+			EditorType=""
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Name"
 			Visible=true
 			Group="ID"
-			InheritedFrom="Object"
+			InitialValue=""
+			Type="String"
+			EditorType=""
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Super"
 			Visible=true
 			Group="ID"
-			InheritedFrom="Object"
+			InitialValue=""
+			Type="String"
+			EditorType=""
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Top"
 			Visible=true
 			Group="Position"
 			InitialValue="0"
-			InheritedFrom="Object"
+			Type="Integer"
+			EditorType=""
 		#tag EndViewProperty
 	#tag EndViewBehavior
 End Module

@@ -22,7 +22,11 @@ Protected Class Encoder
 		  
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
 		  Dim count As Int32
-		  Dim availin, availout As UInt32
+		  #If Target32Bit Then
+		    Dim availin, availout As UInt32
+		  #Else
+		    Dim availin, availout As UInt64
+		  #endif
 		  Dim nextin, nextout As Ptr
 		  
 		  Do
@@ -39,7 +43,11 @@ Protected Class Encoder
 		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
 		      nextout = outbuff
 		      availout = outbuff.Size
-		      mLastError = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
+		      #If Target32Bit Then
+		        mLastError = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
+		      #Else
+		        mLastError = BrotliEncoderCompressStream64(mState, Operation, availin, nextin, availout, nextout, mTotalOut64)
+		      #endif
 		      Dim have As UInt32 = CHUNK_SIZE - availout
 		      If have > 0 Then
 		        If have <> outbuff.Size Then outbuff.Size = have
@@ -55,7 +63,7 @@ Protected Class Encoder
 
 	#tag Method, Flags = &h0
 		Function SetOption(Option As Brotli.EncoderOption, Value As UInt32) As Boolean
-		  Return BrotliEncoderSetParameter(mState, Option, Value) = 1
+		  Return BrotliEncoderSetParameter(mState, Option, Value)
 		End Function
 	#tag EndMethod
 
@@ -63,7 +71,7 @@ Protected Class Encoder
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mState <> Nil Then Return BrotliEncoderIsFinished(mState) = 1
+			  If mState <> Nil Then Return BrotliEncoderIsFinished(mState)
 			End Get
 		#tag EndGetter
 		IsFinished As Boolean
@@ -85,7 +93,7 @@ Protected Class Encoder
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState) = 1
+			  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState)
 			End Get
 		#tag EndGetter
 		MoreOutputAvailable As Boolean
@@ -101,6 +109,10 @@ Protected Class Encoder
 
 	#tag Property, Flags = &h21
 		Private mTotalOut As UInt32
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mTotalOut64 As UInt64
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0

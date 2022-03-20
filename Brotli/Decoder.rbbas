@@ -19,7 +19,11 @@ Protected Class Decoder
 	#tag Method, Flags = &h0
 		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = -1) As Boolean
 		  If mState = Nil Then Return False
-		  Dim availin, availout As UInt32
+		  #If Target32Bit Then
+		    Dim availin, availout As UInt32
+		  #Else
+		    Dim availin, availout As UInt64
+		  #EndIf
 		  Dim nextin, nextout As Ptr
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
 		  Dim count As Integer
@@ -36,7 +40,11 @@ Protected Class Decoder
 		      If outbuff.Size <> CHUNK_SIZE Then outbuff.Size = CHUNK_SIZE
 		      nextout = outbuff
 		      availout = outbuff.Size
+		      #If Target32Bit Then
 		        mLastResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
+		      #Else
+		        mLastResult = BrotliDecoderDecompressStream64(mState, availin, nextin, availout, nextout, mTotalOut64)
+		      #endif
 		      Dim have As UInt32 = CHUNK_SIZE - availout
 		      If mLastResult = DecodeResult.Error Then Return False
 		      If have > 0 Then
@@ -55,7 +63,12 @@ Protected Class Decoder
 	#tag Method, Flags = &h0
 		Function SetParam(Param As Brotli.DecodeParameter, Value As UInt32) As Boolean
 		  If mState = Nil Then Return False
-		  Return BrotliDecoderSetParameter(mState, Param, Value) = 1
+		  #If Target32Bit Then
+		    Return BrotliDecoderSetParameter(mState, Param, Value)
+		  #Else
+		    Dim value64 As UInt64 = Value
+		    Return BrotliDecoderSetParameter64(mState, Param, value64)
+		  #endif
 		End Function
 	#tag EndMethod
 
@@ -63,7 +76,7 @@ Protected Class Decoder
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mState <> Nil Then Return BrotliDecoderIsUsed(mState) = 1
+			  If mState <> Nil Then Return BrotliDecoderIsUsed(mState)
 			End Get
 		#tag EndGetter
 		IsUsed As Boolean
@@ -94,7 +107,7 @@ Protected Class Decoder
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState) = 1
+			  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState)
 			End Get
 		#tag EndGetter
 		MoreOutputAvailable As Boolean
@@ -106,6 +119,10 @@ Protected Class Decoder
 
 	#tag Property, Flags = &h21
 		Private mTotalOut As UInt32
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mTotalOut64 As UInt64
 	#tag EndProperty
 
 
