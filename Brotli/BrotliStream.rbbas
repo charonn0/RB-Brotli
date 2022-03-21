@@ -1,5 +1,5 @@
 #tag Class
-Protected Class BrotliStream
+Class BrotliStream
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
