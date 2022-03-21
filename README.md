@@ -13,14 +13,14 @@ Instances of `BrotliStream` can be created from MemoryBlocks, FolderItems, and o
 
 ```vbnet
   Dim output As New MemoryBlock(0)
-  Dim z As New Brotli.BrotliStream(output) ' zero-length creates a compressor
+  Dim z As New BrotliStream(output) ' zero-length creates a compressor
   z.Write("Hello, world!")
   z.Close
 ```
 The string will be processed through the compressor and written to the `output` MemoryBlock. To create a decompressor pass a MemoryBlock whose size is > 0 (continuing from above):
 
 ```vbnet
-  z = New Brotli.BrotliStream(output) ' output contains the compressed string
+  z = New BrotliStream(output) ' output contains the compressed string
   MsgBox(z.Read(64)) ' read the decompressed string
 ```
 
@@ -31,6 +31,6 @@ The string will be processed through the compressor and written to the `output` 
 3. Copy the `Brotli` module into your project and save.
 
 ### Ensure the Brotli shared libraries are installed
-Brotli is not installed by default on most systems; it will need to be installed separately.
+Brotli is not installed by default on most systems, and will need to be installed separately (or shipped with your app). Pre-built binaries for Windows can be [downloaded from the libcurl project](https://curl.se/windows/). You will need `libbrotlicommon.dll`, `libbrotlidec.dll`, and `libbrotlienc.dll`.
 
 RB-Brotli will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
