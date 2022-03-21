@@ -83,6 +83,17 @@ Inherits Brotli.Codec
 	#tag EndMethod
 
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns True if compression is available.
+			  
+			  Static available As Boolean = System.IsFunctionAvailable("BrotliEncoderCreateInstance", libbrotlienc)
+			  Return available
+			End Get
+		#tag EndGetter
+		Shared IsAvailable As Boolean
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY
@@ -100,6 +111,15 @@ Inherits Brotli.Codec
 			End Set
 		#tag EndSetter
 		Quality As Int32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
+			End Get
+		#tag EndGetter
+		Shared Version As UInt32
 	#tag EndComputedProperty
 
 

@@ -97,6 +97,18 @@ Inherits Brotli.Codec
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if decompression is available.
+			  
+			  Static available As Boolean = System.IsFunctionAvailable("BrotliDecoderCreateInstance", libbrotlidec)
+			  Return available
+			End Get
+		#tag EndGetter
+		Shared IsAvailable As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' Returns False if the Decoder has not processed any input yet.
 			  
 			  If Me.Handle <> Nil Then Return BrotliDecoderIsUsed(Me.Handle)

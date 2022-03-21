@@ -114,7 +114,7 @@ Protected Module Brotli
 		  ' allows you to determine the maximum number of bytes that the algorithm might produce in a
 		  ' worst-case scenario.
 		  
-		  If Not Brotli.IsAvailable Then Return 0
+		  If Not Encoder.IsAvailable Then Return 0
 		  #If Target32Bit Then
 		    Return BrotliEncoderMaxCompressedSize(DataLength)
 		  #Else
@@ -125,7 +125,7 @@ Protected Module Brotli
 
 	#tag Method, Flags = &h1
 		Protected Function Decode(Buffer As MemoryBlock, Optional DecodedSize As UInt64) As MemoryBlock
-		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
+		  If Not Decoder.IsAvailable Then Raise New PlatformNotSupportedException
 		  If DecodedSize = 0 Then DecodedSize = Buffer.Size * 3
 		  Dim output As New MemoryBlock(DecodedSize)
 		  #If Target32Bit Then
@@ -145,7 +145,7 @@ Protected Module Brotli
 
 	#tag Method, Flags = &h1
 		Protected Function Encode(Buffer As MemoryBlock, Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY, Mode As Brotli.EncoderMode = Brotli.EncoderMode.Default) As MemoryBlock
-		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
+		  If Not Encoder.IsAvailable Then Raise New PlatformNotSupportedException
 		  Dim output As New MemoryBlock(Buffer.Size)
 		  #If Target32Bit Then
 		    Dim outsz As UInt32 = output.Size
@@ -166,55 +166,13 @@ Protected Module Brotli
 	#tag ComputedProperty, Flags = &h1
 		#tag Getter
 			Get
-			  If Brotli.IsAvailable Then Return BrotliDecoderVersion()
-			End Get
-		#tag EndGetter
-		Protected DecoderVersion As UInt32
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h1
-		#tag Getter
-			Get
-			  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
-			End Get
-		#tag EndGetter
-		Protected EncoderVersion As UInt32
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h1
-		#tag Getter
-			Get
 			  ' Returns True if Brotli is available.
 			  
-			  Static available As Boolean = IsDecoderAvailable Or IsEncoderAvailable
+			  Static available As Boolean = Decoder.IsAvailable Or Encoder.IsAvailable
 			  Return available
 			End Get
 		#tag EndGetter
 		Protected IsAvailable As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h1
-		#tag Getter
-			Get
-			  ' Returns True if decompression is available.
-			  
-			  Static available As Boolean = System.IsFunctionAvailable("BrotliDecoderCreateInstance", libbrotlidec)
-			  Return available
-			End Get
-		#tag EndGetter
-		Protected IsDecoderAvailable As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h1
-		#tag Getter
-			Get
-			  ' Returns True if compression is available.
-			  
-			  Static available As Boolean = System.IsFunctionAvailable("BrotliEncoderCreateInstance", libbrotlienc)
-			  Return available
-			End Get
-		#tag EndGetter
-		Protected IsEncoderAvailable As Boolean
 	#tag EndComputedProperty
 
 
