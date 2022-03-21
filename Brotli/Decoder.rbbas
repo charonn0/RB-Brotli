@@ -3,18 +3,15 @@ Protected Class Decoder
 Inherits Brotli.Codec
 	#tag Method, Flags = &h0
 		Sub Constructor()
+		  If Not Decoder.IsAvailable Then Raise New PlatformNotSupportedException
 		  // Calling the overridden superclass constructor.
-		  Super.Constructor()
-		  mState = BrotliDecoderCreateInstance(Nil, Nil, Nil)
-		  If mState = Nil Then Raise New BrotliException(Me)
-		  
+		  Super.Constructor(BrotliDecoderCreateInstance(Nil, Nil, Nil))
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mState <> Nil Then BrotliDecoderDestroyInstance(mState)
-		  mState = Nil
+		  If Me.Handle <> Nil Then BrotliDecoderDestroyInstance(Me.Handle)
 		End Sub
 	#tag EndMethod
 
@@ -28,7 +25,7 @@ Inherits Brotli.Codec
 
 	#tag Method, Flags = &h1
 		Protected Function GetMoreOutputAvailable() As Boolean
-		  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState)
+		  If Me.Handle <> Nil Then Return BrotliDecoderHasMoreOutput(Me.Handle)
 		End Function
 	#tag EndMethod
 
@@ -40,8 +37,8 @@ Inherits Brotli.Codec
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = -1) As Boolean
-		  If mState = Nil Then Return False
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = - 1) As Boolean
+		  If Me.Handle = Nil Then Return False
 		  #If Target32Bit Then
 		    Dim availin, availout As UInt32
 		  #Else
@@ -64,9 +61,9 @@ Inherits Brotli.Codec
 		      nextout = outbuff
 		      availout = outbuff.Size
 		      #If Target32Bit Then
-		        mLastResult = BrotliDecoderDecompressStream(mState, availin, nextin, availout, nextout, mTotalOut)
+		        mLastResult = BrotliDecoderDecompressStream(Me.Handle, availin, nextin, availout, nextout, mTotalOut)
 		      #Else
-		        mLastResult = BrotliDecoderDecompressStream64(mState, availin, nextin, availout, nextout, mTotalOut64)
+		        mLastResult = BrotliDecoderDecompressStream64(Me.Handle, availin, nextin, availout, nextout, mTotalOut64)
 		      #endif
 		      Dim have As UInt32 = CHUNK_SIZE - availout
 		      If mLastResult = DecodeResult.Error Then Return False
@@ -85,13 +82,13 @@ Inherits Brotli.Codec
 
 	#tag Method, Flags = &h0
 		Function SetParam(Param As Brotli.CodecOption, Value As UInt32) As Boolean
-		  If mState = Nil Then Return False
+		  If Me.Handle = Nil Then Return False
 		  If Param <> CodecOption.DisableLiteralContextModeling Then Return False ' this is the only supported decode option
 		  #If Target32Bit Then
-		    Return BrotliDecoderSetParameter(mState, Param, Value)
+		    Return BrotliDecoderSetParameter(Me.Handle, Param, Value)
 		  #Else
 		    Dim value64 As UInt64 = Value
-		    Return BrotliDecoderSetParameter64(mState, Param, value64)
+		    Return BrotliDecoderSetParameter64(Me.Handle, Param, value64)
 		  #endif
 		End Function
 	#tag EndMethod
@@ -102,7 +99,7 @@ Inherits Brotli.Codec
 			Get
 			  ' Returns False if the Decoder has not processed any input yet.
 			  
-			  If mState <> Nil Then Return BrotliDecoderIsUsed(mState)
+			  If Me.Handle <> Nil Then Return BrotliDecoderIsUsed(Me.Handle)
 			End Get
 		#tag EndGetter
 		IsUsed As Boolean

@@ -1,8 +1,9 @@
 #tag Class
 Protected Class Codec
 	#tag Method, Flags = &h1
-		Protected Sub Constructor()
-		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
+		Protected Sub Constructor(CodecPtr As Ptr)
+		  mState = CodecPtr
+		  If mState = Nil Then Raise New BrotliException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -70,8 +71,8 @@ Protected Class Codec
 		MoreOutputAvailable As Boolean
 	#tag EndComputedProperty
 
-	#tag Property, Flags = &h1
-		Protected mState As Ptr
+	#tag Property, Flags = &h21
+		Private mState As Ptr
 	#tag EndProperty
 
 	#tag Property, Flags = &h1

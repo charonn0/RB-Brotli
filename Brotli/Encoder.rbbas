@@ -3,18 +3,16 @@ Protected Class Encoder
 Inherits Brotli.Codec
 	#tag Method, Flags = &h0
 		Sub Constructor(Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY)
+		  If Not Encoder.IsAvailable Then Raise New PlatformNotSupportedException
 		  // Calling the overridden superclass constructor.
-		  Super.Constructor()
-		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
-		  If mState = Nil Then Raise New BrotliException(Me)
+		  Super.Constructor(BrotliEncoderCreateInstance(Nil, Nil, Nil))
 		  If Quality <> BROTLI_DEFAULT_QUALITY Then Me.Quality = Quality
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mState <> Nil Then BrotliEncoderDestroyInstance(mState)
-		  mState = Nil
+		  If Me.Handle <> Nil Then BrotliEncoderDestroyInstance(Me.Handle)
 		End Sub
 	#tag EndMethod
 
@@ -28,13 +26,13 @@ Inherits Brotli.Codec
 
 	#tag Method, Flags = &h1
 		Protected Function GetMoreOutputAvailable() As Boolean
-		  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState)
+		  If Me.Handle <> Nil Then Return BrotliEncoderHasMoreOutput(Me.Handle)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = -1) As Boolean
-		  If mState = Nil Then Return False
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = - 1) As Boolean
+		  If Me.Handle = Nil Then Return False
 		  
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
 		  Dim count As Int32
@@ -80,7 +78,7 @@ Inherits Brotli.Codec
 
 	#tag Method, Flags = &h0
 		Function SetParam(Option As Brotli.CodecOption, Value As UInt32) As Boolean
-		  Return BrotliEncoderSetParameter(mState, Option, Value)
+		  Return BrotliEncoderSetParameter(Me.Handle, Option, Value)
 		End Function
 	#tag EndMethod
 
