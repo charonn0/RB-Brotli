@@ -265,7 +265,7 @@ Implements Readable,Writeable
 			  Return mDecoder
 			End Get
 		#tag EndGetter
-		Decoder As Brotli.Decoder
+		Decoder As Brotli.Codec
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -274,7 +274,7 @@ Implements Readable,Writeable
 			  Return mEncoder
 			End Get
 		#tag EndGetter
-		Encoder As Brotli.Encoder
+		Encoder As Brotli.Codec
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
