@@ -22,13 +22,7 @@ Inherits Brotli.Codec
 		Protected Function GetIsFinished() As Boolean
 		  ' Returns True if the Encoder has finished.
 		  
-		  If mState <> Nil Then Return BrotliEncoderIsFinished(mState)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function GetLastError() As Integer
-		  Return mLastError
+		  If Me.Handle <> Nil Then Return BrotliEncoderIsFinished(Me.Handle)
 		End Function
 	#tag EndMethod
 
@@ -44,6 +38,7 @@ Inherits Brotli.Codec
 		  
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
 		  Dim count As Int32
+		  Dim OK As Boolean
 		  #If Target32Bit Then
 		    Dim availin, availout As UInt32
 		  #Else
@@ -66,20 +61,20 @@ Inherits Brotli.Codec
 		      nextout = outbuff
 		      availout = outbuff.Size
 		      #If Target32Bit Then
-		        mLastError = BrotliEncoderCompressStream(mState, Operation, availin, nextin, availout, nextout, mTotalOut)
+		        OK = BrotliEncoderCompressStream(Me.Handle, Operation, availin, nextin, availout, nextout, mTotalOut)
 		      #Else
-		        mLastError = BrotliEncoderCompressStream64(mState, Operation, availin, nextin, availout, nextout, mTotalOut64)
+		        OK = BrotliEncoderCompressStream64(Me.Handle, Operation, availin, nextin, availout, nextout, mTotalOut64)
 		      #endif
 		      Dim have As UInt32 = CHUNK_SIZE - availout
 		      If have > 0 Then
 		        If have <> outbuff.Size Then outbuff.Size = have
 		        WriteTo.Write(outbuff)
 		      End If
-		    Loop Until mLastError <> 1 Or availout <> 0
+		    Loop Until Not OK Or availout <> 0
 		    
 		  Loop Until (ReadCount > -1 And count >= ReadCount) Or ReadFrom = Nil Or ReadFrom.EOF
 		  
-		  Return availin = 0 And mLastError = 1
+		  Return availin = 0 And OK
 		End Function
 	#tag EndMethod
 
@@ -90,9 +85,6 @@ Inherits Brotli.Codec
 	#tag EndMethod
 
 
-	#tag Property, Flags = &h21
-		Private mLastError As Integer
-	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY

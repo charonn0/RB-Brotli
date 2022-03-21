@@ -6,15 +6,15 @@ Protected Class Codec
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
-		Protected Function GetIsFinished() As Boolean
-		  Return True
-		End Function
+	#tag Method, Flags = &h21
+		Private Sub Destructor()
+		  mState = Nil
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function GetLastError() As Integer
-		  Return 0
+		Protected Function GetIsFinished() As Boolean
+		  Return True
 		End Function
 	#tag EndMethod
 
@@ -46,19 +46,19 @@ Protected Class Codec
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return GetIsFinished()
+			  return mState
 			End Get
 		#tag EndGetter
-		IsFinished As Boolean
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return GetLastError()
+			  Return GetIsFinished()
 			End Get
 		#tag EndGetter
-		LastError As Integer
+		IsFinished As Boolean
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

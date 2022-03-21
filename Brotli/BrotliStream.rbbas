@@ -210,7 +210,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Function ReadError() As Boolean
 		  // Part of the Readable interface.
-		  If mSource <> Nil Then Return mSource.ReadError Or (mDecoder <> Nil And mDecoder.LastError <> 0)
+		  If mSource <> Nil Then Return mSource.ReadError Or (mDecoder <> Nil And mDecoder.LastResult = DecodeResult.Error)
 		End Function
 	#tag EndMethod
 
@@ -239,7 +239,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Function WriteError() As Boolean
 		  // Part of the Writeable interface.
-		  If mDestination <> Nil Then Return mDestination.WriteError Or (mEncoder <> Nil And mEncoder.LastError <> 1)
+		  If mDestination <> Nil Then Return mDestination.WriteError
 		End Function
 	#tag EndMethod
 
@@ -295,15 +295,6 @@ Implements Readable,Writeable
 			End Get
 		#tag EndGetter
 		IsWriteable As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mDecoder <> Nil Then Return mDecoder.LastError
-			End Get
-		#tag EndGetter
-		LastError As Int32
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21

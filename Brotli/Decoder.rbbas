@@ -22,13 +22,7 @@ Inherits Brotli.Codec
 		Protected Function GetIsFinished() As Boolean
 		  ' Returns True if the Decoder has finished.
 		  
-		  If mState <> Nil Then Return BrotliDecoderIsFinished(mState)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function GetLastError() As Integer
-		  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
+		  If Me.Handle <> Nil Then Return BrotliDecoderIsFinished(Me.Handle)
 		End Function
 	#tag EndMethod
 
