@@ -1,8 +1,10 @@
 #tag Class
 Protected Class Decoder
+Inherits Brotli.Codec
 	#tag Method, Flags = &h0
 		Sub Constructor()
-		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
+		  // Calling the overridden superclass constructor.
+		  Super.Constructor()
 		  mState = BrotliDecoderCreateInstance(Nil, Nil, Nil)
 		  If mState = Nil Then Raise New BrotliException(Me)
 		  
@@ -14,6 +16,33 @@ Protected Class Decoder
 		  If mState <> Nil Then BrotliDecoderDestroyInstance(mState)
 		  mState = Nil
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetIsFinished() As Boolean
+		  ' Returns True if the Decoder has finished.
+		  
+		  If mState <> Nil Then Return BrotliDecoderIsFinished(mState)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetLastError() As Integer
+		  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetMoreOutputAvailable() As Boolean
+		  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = -1) As Boolean
+		  If Operation <> Brotli.Operation.Process Then Return False
+		  Return Me.Perform(ReadFrom, WriteTo, ReadCount)
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -61,8 +90,9 @@ Protected Class Decoder
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SetParam(Param As Brotli.DecodeParameter, Value As UInt32) As Boolean
+		Function SetParam(Param As Brotli.CodecOption, Value As UInt32) As Boolean
 		  If mState = Nil Then Return False
+		  If Param <> CodecOption.DisableLiteralContextModeling Then Return False ' this is the only supported decode option
 		  #If Target32Bit Then
 		    Return BrotliDecoderSetParameter(mState, Param, Value)
 		  #Else
@@ -76,19 +106,12 @@ Protected Class Decoder
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns False if the Decoder has not processed any input yet.
+			  
 			  If mState <> Nil Then Return BrotliDecoderIsUsed(mState)
 			End Get
 		#tag EndGetter
 		IsUsed As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mState <> Nil Then Return BrotliDecoderGetErrorCode(mState)
-			End Get
-		#tag EndGetter
-		LastError As Integer
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -102,27 +125,6 @@ Protected Class Decoder
 
 	#tag Property, Flags = &h21
 		Private mLastResult As Brotli.DecodeResult
-	#tag EndProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mState <> Nil Then Return BrotliDecoderHasMoreOutput(mState)
-			End Get
-		#tag EndGetter
-		MoreOutputAvailable As Boolean
-	#tag EndComputedProperty
-
-	#tag Property, Flags = &h21
-		Private mState As Ptr
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mTotalOut As UInt32
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mTotalOut64 As UInt64
 	#tag EndProperty
 
 

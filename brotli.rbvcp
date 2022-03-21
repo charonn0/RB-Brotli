@@ -8,6 +8,7 @@ Class=BrotliStream;Brotli/BrotliStream.rbbas;&h1C4BAFFF;&h715647FF;false
 Class=BrotliException;Brotli/BrotliException.rbbas;&h49553FFF;&h715647FF;false
 Class=Decoder;Brotli/Decoder.rbbas;&h68B0BFFF;&h715647FF;false
 Class=Encoder;Brotli/Encoder.rbbas;&hC73FFF;&h715647FF;false
+Class=Codec;Brotli/Codec.rbbas;&h52AFBFFF;&h715647FF;false
 MajorVersion=1
 MinorVersion=0
 SubVersion=0

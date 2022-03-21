@@ -1,8 +1,10 @@
 #tag Class
 Protected Class Encoder
+Inherits Brotli.Codec
 	#tag Method, Flags = &h0
 		Sub Constructor(Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY)
-		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
+		  // Calling the overridden superclass constructor.
+		  Super.Constructor()
 		  mState = BrotliEncoderCreateInstance(Nil, Nil, Nil)
 		  If mState = Nil Then Raise New BrotliException(Me)
 		  If Quality <> BROTLI_DEFAULT_QUALITY Then Me.Quality = Quality
@@ -16,8 +18,28 @@ Protected Class Encoder
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function GetIsFinished() As Boolean
+		  ' Returns True if the Encoder has finished.
+		  
+		  If mState <> Nil Then Return BrotliEncoderIsFinished(mState)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetLastError() As Integer
+		  Return mLastError
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetMoreOutputAvailable() As Boolean
+		  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState)
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
-		Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = - 1) As Boolean
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, Operation As Brotli.Operation, ReadCount As Integer = -1) As Boolean
 		  If mState = Nil Then Return False
 		  
 		  Dim outbuff As New MemoryBlock(CHUNK_SIZE)
@@ -62,57 +84,18 @@ Protected Class Encoder
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SetOption(Option As Brotli.EncoderOption, Value As UInt32) As Boolean
+		Function SetParam(Option As Brotli.CodecOption, Value As UInt32) As Boolean
 		  Return BrotliEncoderSetParameter(mState, Option, Value)
 		End Function
 	#tag EndMethod
 
 
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mState <> Nil Then Return BrotliEncoderIsFinished(mState)
-			End Get
-		#tag EndGetter
-		IsFinished As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  return mLastError
-			End Get
-		#tag EndGetter
-		LastError As Integer
-	#tag EndComputedProperty
-
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
 	#tag EndProperty
 
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mState <> Nil Then Return BrotliEncoderHasMoreOutput(mState)
-			End Get
-		#tag EndGetter
-		MoreOutputAvailable As Boolean
-	#tag EndComputedProperty
-
 	#tag Property, Flags = &h21
 		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mState As Ptr
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mTotalOut As UInt32
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mTotalOut64 As UInt64
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -123,7 +106,7 @@ Protected Class Encoder
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If SetOption(EncoderOption.Quality, value) Then mQuality = value
+			  If SetParam(CodecOption.Quality, value) Then mQuality = value
 			End Set
 		#tag EndSetter
 		Quality As Int32

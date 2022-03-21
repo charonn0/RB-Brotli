@@ -37,15 +37,19 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliDecoderIsFinished Lib libbrotlidec (State As Ptr) As Boolean
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function BrotliDecoderIsUsed Lib libbrotlidec (State As Ptr) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderSetParameter Lib libbrotlidec (State As Ptr, Param As DecodeParameter, Value As UInt32) As Boolean
+		Private Soft Declare Function BrotliDecoderSetParameter Lib libbrotlidec (State As Ptr, Param As CodecOption, Value As UInt32) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliDecoderSetParameter64 Lib libbrotlidec Alias "BrotliDecoderSetParameter" (State As Ptr, Param As DecodeParameter, Value As UInt64) As Boolean
+		Private Soft Declare Function BrotliDecoderSetParameter64 Lib libbrotlidec Alias "BrotliDecoderSetParameter" (State As Ptr, Param As CodecOption, Value As UInt64) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -89,7 +93,15 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderSetParameter Lib libbrotlienc (State As Ptr, Option As EncoderOption, Value As UInt32) As Boolean
+		Private Soft Declare Function BrotliEncoderMaxCompressedSize Lib libbrotlienc (InputSize As UInt32) As UInt32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderMaxCompressedSize64 Lib libbrotlienc (InputSize As UInt64) As UInt64
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function BrotliEncoderSetParameter Lib libbrotlienc (State As Ptr, Option As CodecOption, Value As UInt32) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -212,8 +224,14 @@ Protected Module Brotli
 	#tag EndConstant
 
 
-	#tag Enum, Name = DecodeParameter, Type = Integer, Flags = &h1
-		DisableRingBufferRealloc
+	#tag Enum, Name = CodecOption, Flags = &h1
+		Mode=0
+		  Quality=1
+		  LGWIN=2
+		  LGBLOCK=3
+		  DisableLiteralContextModeling=4
+		  SizeHint=5
+		DisableRingBufferRealloc=0
 	#tag EndEnum
 
 	#tag Enum, Name = DecodeResult, Flags = &h1
@@ -228,15 +246,6 @@ Protected Module Brotli
 		  Text
 		  Font
 		Default=EncoderMode.Generic
-	#tag EndEnum
-
-	#tag Enum, Name = EncoderOption, Type = Integer, Flags = &h1
-		Mode=0
-		  Quality
-		  LGWIN
-		  LGBLOCK
-		  DisableLiteralContextModeling
-		SizeHint
 	#tag EndEnum
 
 	#tag Enum, Name = Operation, Flags = &h1
