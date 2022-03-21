@@ -233,10 +233,16 @@ Protected Module Brotli
 	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"524288", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = libbrotlidec, Type = String, Dynamic = False, Default = \"libbrotlidec", Scope = Private
+	#tag Constant, Name = libbrotlidec, Type = String, Dynamic = False, Default = \"libbrotlidec.so.1", Scope = Private
+		#Tag Instance, Platform = Windows, Language = Default, Definition  = \"libbrotlidec.dll"
+		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libbrotlidec.so.1"
+		#Tag Instance, Platform = Mac OS, Language = Default, Definition  = \"@executable_path/../Frameworks/libbrotlidec.1.dylib"
 	#tag EndConstant
 
-	#tag Constant, Name = libbrotlienc, Type = String, Dynamic = False, Default = \"libbrotlienc", Scope = Private
+	#tag Constant, Name = libbrotlienc, Type = String, Dynamic = False, Default = \"libbrotlienc.so.1", Scope = Private
+		#Tag Instance, Platform = Windows, Language = Default, Definition  = \"libbrotlienc.dll"
+		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libbrotlienc.so.1"
+		#Tag Instance, Platform = Mac OS, Language = Default, Definition  = \"@executable_path/../Frameworks/libbrotlienc.1.dylib"
 	#tag EndConstant
 
 
