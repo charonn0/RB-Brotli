@@ -109,6 +109,21 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag Method, Flags = &h1
+		Protected Function CompressBound(DataLength As UInt64) As UInt64
+		  ' Computes the upper bound of the compressed size after compressing DataLength bytes. This 
+		  ' allows you to determine the maximum number of bytes that the algorithm might produce in a
+		  ' worst-case scenario.
+		  
+		  If Not Brotli.IsAvailable Then Return 0
+		  #If Target32Bit Then
+		    Return BrotliEncoderMaxCompressedSize(DataLength)
+		  #Else
+		    Return BrotliEncoderMaxCompressedSize64(DataLength)
+		  #endif
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Decode(Buffer As MemoryBlock, Optional DecodedSize As UInt64) As MemoryBlock
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
 		  If DecodedSize = 0 Then DecodedSize = Buffer.Size * 3
