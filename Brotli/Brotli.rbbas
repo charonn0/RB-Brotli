@@ -109,9 +109,10 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Decode(Buffer As MemoryBlock) As MemoryBlock
+		Protected Function Decode(Buffer As MemoryBlock, Optional DecodedSize As UInt64) As MemoryBlock
 		  If Not Brotli.IsAvailable Then Raise New PlatformNotSupportedException
-		  Dim output As New MemoryBlock(Buffer.Size * 3)
+		  If DecodedSize = 0 Then DecodedSize = Buffer.Size * 3
+		  Dim output As New MemoryBlock(DecodedSize)
 		  #If Target32Bit Then
 		    Dim outsz As UInt32 = output.Size
 		    Do Until BrotliDecoderDecompress(Buffer.Size, Buffer, outsz, output) = DecodeResult.Success
@@ -119,8 +120,8 @@ Protected Module Brotli
 		    Dim outsz As UInt64 = output.Size
 		    Do Until BrotliDecoderDecompress64(Buffer.Size, Buffer, outsz, output) = DecodeResult.Success
 		  #EndIf
-		  If output.Size > Buffer.Size * 15 Then Return Nil
 		  output.Size = output.Size * 1.5
+		  outsz = output.Size
 		  Loop
 		  output.Size = outsz
 		  Return output
