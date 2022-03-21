@@ -65,11 +65,11 @@ Protected Module Brotli
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Int32
+		Private Soft Declare Function BrotliEncoderCompressStream Lib libbrotlienc (State As Ptr, Operation As Operation, ByRef AvailIn As UInt32, ByRef NextIn As Ptr, ByRef AvailOut As UInt32, ByRef NextOut As Ptr, ByRef TotalOut As UInt32) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function BrotliEncoderCompressStream64 Lib libbrotlienc Alias "BrotliEncoderCompressStream" (State As Ptr, Operation As Operation, ByRef AvailIn As UInt64, ByRef NextIn As Ptr, ByRef AvailOut As UInt64, ByRef NextOut As Ptr, ByRef TotalOut As UInt64) As Int32
+		Private Soft Declare Function BrotliEncoderCompressStream64 Lib libbrotlienc Alias "BrotliEncoderCompressStream" (State As Ptr, Operation As Operation, ByRef AvailIn As UInt64, ByRef NextIn As Ptr, ByRef AvailOut As UInt64, ByRef NextOut As Ptr, ByRef TotalOut As UInt64) As Boolean
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
