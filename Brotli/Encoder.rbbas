@@ -2,11 +2,12 @@
 Protected Class Encoder
 Inherits Brotli.Codec
 	#tag Method, Flags = &h0
-		Sub Constructor(Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY)
+		Sub Constructor(Quality As Int32 = Brotli.BROTLI_DEFAULT_QUALITY, SizeHint As UInt32 = 0)
 		  If Not Encoder.IsAvailable Then Raise New PlatformNotSupportedException
 		  // Calling the overridden superclass constructor.
 		  Super.Constructor(BrotliEncoderCreateInstance(Nil, Nil, Nil))
 		  If Quality <> BROTLI_DEFAULT_QUALITY Then Me.Quality = Quality
+		  If SizeHint > 0 Then Call SetParam(CodecOption.SizeHint, SizeHint)
 		End Sub
 	#tag EndMethod
 
