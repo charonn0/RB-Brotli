@@ -37,7 +37,7 @@ Inherits Brotli.Codec
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = - 1) As Boolean
+		Function Perform(ReadFrom As Readable, WriteTo As Writeable, ReadCount As Integer = -1) As Boolean
 		  If Me.Handle = Nil Then Return False
 		  #If Target32Bit Then
 		    Dim availin, availout As UInt32
@@ -129,6 +129,30 @@ Inherits Brotli.Codec
 	#tag Property, Flags = &h21
 		Private mLastResult As Brotli.DecodeResult
 	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mUseRingBufferReallocation As Boolean = True
+	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mUseRingBufferReallocation
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value = mUseRingBufferReallocation Then Return
+			  If value Then
+			    If Not SetParam(CodecOption.DisableRingBufferRealloc, 0) Then Return
+			  Else
+			    If Not SetParam(CodecOption.DisableRingBufferRealloc, 1) Then Return
+			  End If
+			  mUseRingBufferReallocation = value
+			End Set
+		#tag EndSetter
+		UseRingBufferReallocation As Boolean
+	#tag EndComputedProperty
 
 
 	#tag ViewBehavior

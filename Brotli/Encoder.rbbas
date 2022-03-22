@@ -85,6 +85,36 @@ Inherits Brotli.Codec
 
 
 	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			Recommended input block size.
+			
+			Encoder may reduce this value, e.g. if input is much smaller than input block size.
+			
+			Range is from BROTLI_MIN_INPUT_BLOCK_BITS to BROTLI_MAX_INPUT_BLOCK_BITS.
+			
+			Note:
+			Bigger input block size allows better compression, but consumes more memory. The rough
+			formula of memory used for temporary input storage is =ShiftLeft(3, BlockSize)
+		#tag EndNote
+		#tag Getter
+			Get
+			  return mBlockSize
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value > BROTLI_MAX_INPUT_BLOCK_BITS Or value < BROTLI_MIN_INPUT_BLOCK_BITS Then 
+			    Dim err As New BrotliException(Me)
+			    err.Message = "Block size is out of range."
+			    Raise err
+			  End If
+			  If SetParam(CodecOption.LGBLOCK, value) Then mBlockSize = value
+			End Set
+		#tag EndSetter
+		BlockSize As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
 			  ' Returns True if compression is available.
@@ -97,10 +127,50 @@ Inherits Brotli.Codec
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
-		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY
+		Private mBlockSize As UInt32
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mMode As Brotli.EncoderMode
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			Tune encoder for specific input.
+			
+			See the EncoderMode enumeration for possible values.
+		#tag EndNote
+		#tag Getter
+			Get
+			  return mMode
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If SetParam(CodecOption.Mode, CType(value, UInt32)) Then mMode = value
+			End Set
+		#tag EndSetter
+		Mode As Brotli.EncoderMode
+	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mQuality As Int32 = BROTLI_DEFAULT_QUALITY
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mUseLiteralContextModeling As Boolean = True
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mWindowSize As UInt32
+	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			The main compression speed-density lever.
+			
+			The higher the quality, the slower the compression. Range is from BROTLI_MIN_QUALITY to BROTLI_MAX_QUALITY.
+		#tag EndNote
 		#tag Getter
 			Get
 			  return mQuality
@@ -117,10 +187,58 @@ Inherits Brotli.Codec
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  return mUseLiteralContextModeling
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value = mUseLiteralContextModeling Then Return
+			  If value Then
+			    If Not SetParam(CodecOption.DisableLiteralContextModeling, 0) Then Return
+			  Else
+			    If Not SetParam(CodecOption.DisableLiteralContextModeling, 1) Then Return
+			  End If
+			  mUseLiteralContextModeling = value
+			End Set
+		#tag EndSetter
+		UseLiteralContextModeling As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  If Brotli.IsAvailable Then Return BrotliEncoderVersion()
 			End Get
 		#tag EndGetter
 		Shared Version As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			Recommended sliding LZ77 window size.
+			
+			Encoder may reduce this value, e.g. if input is much smaller than window size.
+			
+			Window size is =ShiftLeft(1, thisValue)-16
+			
+			Range is from BROTLI_MIN_WINDOW_BITS to BROTLI_MAX_WINDOW_BITS.
+		#tag EndNote
+		#tag Getter
+			Get
+			  return mWindowSize
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value > BROTLI_MAX_WINDOW_BITS Or value < BROTLI_MIN_WINDOW_BITS Then 
+			    Dim err As New BrotliException(Me)
+			    err.Message = "Window size is out of range."
+			    Raise err
+			  End If
+			  If SetParam(CodecOption.LGWIN, value) Then mWindowSize = value
+			End Set
+		#tag EndSetter
+		WindowSize As UInt32
 	#tag EndComputedProperty
 
 
