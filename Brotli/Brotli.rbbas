@@ -182,10 +182,22 @@ Protected Module Brotli
 	#tag Constant, Name = BROTLI_DEFAULT_WINDOW, Type = Double, Dynamic = False, Default = \"22", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = BROTLI_MAX_INPUT_BLOCK_BITS, Type = Double, Dynamic = False, Default = \"24", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = BROTLI_MAX_QUALITY, Type = Double, Dynamic = False, Default = \"11", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = BROTLI_MAX_WINDOW_BITS, Type = Double, Dynamic = False, Default = \"24", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = BROTLI_MIN_INPUT_BLOCK_BITS, Type = Double, Dynamic = False, Default = \"16", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = BROTLI_MIN_QUALITY, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = BROTLI_MIN_WINDOW_BITS, Type = Double, Dynamic = False, Default = \"10", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"524288", Scope = Private
