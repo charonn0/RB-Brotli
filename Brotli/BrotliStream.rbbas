@@ -262,24 +262,6 @@ Implements Readable,Writeable
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return mDecoder
-			End Get
-		#tag EndGetter
-		Decoder As Brotli.Codec
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  Return mEncoder
-			End Get
-		#tag EndGetter
-		Encoder As Brotli.Codec
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
 			  ' Returns True if the stream is in decompression mode
 			  Return mDecoder <> Nil
 			End Get
