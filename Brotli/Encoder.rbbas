@@ -8,6 +8,7 @@ Inherits Brotli.Codec
 		  Super.Constructor(BrotliEncoderCreateInstance(Nil, Nil, Nil))
 		  If Quality <> BROTLI_DEFAULT_QUALITY Then Me.Quality = Quality
 		  If SizeHint > 0 Then Call SetParam(CodecOption.SizeHint, SizeHint)
+		  mMode = EncoderMode.Default
 		End Sub
 	#tag EndMethod
 
