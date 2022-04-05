@@ -24,7 +24,11 @@ The string will be processed through the compressor and written to the `output` 
 
 ```vbnet
   z = New BrotliStream(output) ' output contains the compressed string
-  MsgBox(z.Read(64)) ' read the decompressed string
+  Dim decompressed As String
+  Do Until z.EOF
+    decompressed = decompressed + z.Read(1024) ' read the decompressed string
+  Loop
+  MsgBox(decompressed)
 ```
 
 ## How to incorporate Brotli into your Realbasic/Xojo project
