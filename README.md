@@ -14,7 +14,7 @@ The [`BrotliStream`](https://github.com/charonn0/RB-Brotli/wiki/Brotli.BrotliStr
 
 Instances of `BrotliStream` can be created from MemoryBlocks, FolderItems, and objects that implement the `Readable` and/or `Writeable` interfaces. For example, creating an in-memory compression stream from a zero-length MemoryBlock and writing a string to it:
 
-```vbnet
+```realbasic
   Dim output As New MemoryBlock(0)
   Dim z As New BrotliStream(output) ' zero-length creates a compressor
   z.Write("Hello, world!")
@@ -22,7 +22,7 @@ Instances of `BrotliStream` can be created from MemoryBlocks, FolderItems, and o
 ```
 The string will be processed through the compressor and written to the `output` MemoryBlock. To create a decompressor pass a MemoryBlock whose size is > 0 (continuing from above):
 
-```vbnet
+```realbasic
   z = New BrotliStream(output) ' output contains the compressed string
   Dim decompressed As String
   Do Until z.EOF
